@@ -4,7 +4,7 @@ import json
 import boto3
 
 from utils import (get_stock_data_from_ddb,
-                   stocks_to_dataframe, clean_dataframe)
+                   stocks_to_dataframe, clean_dataframe, upload_file)
 
 logger = logging.getLogger()
 logger.setLevel('INFO')
@@ -58,10 +58,17 @@ def lambda_handler(event, context):
 
     logger.info('Successfully cleaned the DataFrame')
 
+    upload_result = upload_file(
+        s3_client=bucket_client,
+        bucket_name=os.environ['BUCKET_NAME'],
+        file_name='viz-data.csv',
+        clean_df=clean_stocks_df
+    )
+
     return {
         "statusCode": 200,
         "body": json.dumps({
-            "message": clean_stocks_df,
+            "message": upload_result,
             # "location": ip.text.replace("\n", "")
         }),
     }

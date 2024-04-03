@@ -1,5 +1,6 @@
 import logging
 
+from io import StringIO
 from botocore.exceptions import ClientError
 from pandas import (DataFrame, to_numeric)
 
@@ -118,3 +119,47 @@ def clean_dataframe(df: DataFrame) -> DataFrame:
     df[['open_price', 'close_price', 'volume']] = df[[
         'open_price', 'close_price', 'volume']].apply(to_numeric)
     return df
+
+
+def upload_file(s3_client, bucket_name: str, file_name: str, clean_df: DataFrame) -> str:
+    """
+    Uploads the cleaned pandas DataFrame returned from the `clean_dataframe` function to S3.
+
+    Parameters
+    ----------
+    `s3_client`:
+        The S3 client that will be used for the bucket, i.e. `boto3.client('s3')`
+
+    `bucket_name`: `str`
+        The name of the bucket where we will upload the data.
+
+    `file_name`: `str`
+        The name of the file for the uploaded DataFrame
+
+    `clean_df`: `DataFrame`
+        The pandas DataFrame that is returned from the `clean_dataframe` function.
+
+    Returns
+    -------
+    The response from the upload to S3 process
+    """
+
+    try:
+        # We are using StringIO to work with the DataFrame in memory
+        with StringIO() as csv_buffer:
+
+            clean_df.to_csv(csv_buffer, index=False)
+
+            response = s3_client.put_object(
+                Bucket=bucket_name,
+                Key=file_name,
+                Body=csv_buffer.getvalue()
+            )
+
+            status = response.get('ResponseMetaData', {}).get('HTTPStatusCode')
+
+        if status == 200:
+            return f"Successful S3 put_object response. Status - {status}"
+
+    except Exception as e:
+        return f"Failed to upload DataFrame to S3: {e}"
