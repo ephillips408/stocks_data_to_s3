@@ -1,6 +1,7 @@
 import logging
 
 from botocore.exceptions import ClientError
+from pandas import DataFrame
 
 logger = logging.getLogger()
 logger.setLevel('INFO')
@@ -27,7 +28,7 @@ def get_stock_data_from_ddb(db_client, table_name: str, index_name: str, symbols
 
     Returns
     -------
-    A list of the data that was obtained from DynamoDB
+    A list of lists that contain the data obtained from DynamoDB. Each list contains the data for the specified symbols.
 
     """
 
@@ -61,3 +62,40 @@ def get_stock_data_from_ddb(db_client, table_name: str, index_name: str, symbols
             err.response["Error"]["Message"],
         )
         raise
+
+
+def stocks_to_dataframe(response_list: list) -> DataFrame:
+    """
+    Cleans the data that we returned from the `get_stock_data_from_ddb` function. Note that the returned data is a list of lists.
+
+    Parameters
+    ----------
+    `response_list`: `list`
+        The resulting list from calling the `get_stock_data_from_ddb` function.
+
+    Returns
+    -------
+    A pandas DataFrame that is properly cleaned for the upload to S3.
+    """
+    data = []
+
+    # Iterate over the data for each stock. # The data for each symbol is its own list in the response
+    for symbol_data in response_list:
+
+        # This is the data for each date for the stock.
+        for stock_data in symbol_data:
+
+            data.append(
+                {
+                    'pk': stock_data['pk']['S'],
+                    'symbol': stock_data['symbol']['S'],
+                    'date': stock_data['date']['S'],
+                    'open_price': stock_data['open_price']['N'],
+                    'close_price': stock_data['close_price']['N'],
+                    'volume': stock_data['volume']['N']
+                }
+            )
+
+    results = DataFrame(data)
+
+    return results

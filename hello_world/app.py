@@ -3,7 +3,7 @@ import logging
 import json
 import boto3
 
-from utils import (get_stock_data_from_ddb)
+from utils import (get_stock_data_from_ddb, stocks_to_dataframe)
 
 logger = logging.getLogger()
 logger.setLevel('INFO')
@@ -45,10 +45,16 @@ def lambda_handler(event, context):
 
     logger.info('Successfully obtained data from DynamoDB')
 
+    stocks_df = stocks_to_dataframe(
+        response_list=db_data
+    )
+
+    logger.info('Successfully converted data to DataFrame')
+
     return {
         "statusCode": 200,
         "body": json.dumps({
-            "message": db_data,
+            "message": stocks_df,
             # "location": ip.text.replace("\n", "")
         }),
     }

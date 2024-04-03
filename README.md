@@ -2,7 +2,7 @@
 
 #### This is still a work in progress.
 
-This code takes data that was pushed to DynamoDB using [this process](https://github.com/ephillips408/lambda_get_stock_data), and pushes the results as a `.csv` file to an S3 bucket. We query only the stocks by utilizing the global secondary index of the table.
+This code takes data that was pushed to DynamoDB using [this process](https://github.com/ephillips408/lambda_get_stock_data), and pushes the results as a `.csv` file to an S3 bucket. This process assumes an non-empty DynamoDB table. We query only the stock data of interest by utilizing the global secondary index of the table.
 
 This project was created using the [AWS SAM CLI]('https://aws.amazon.com/serverless/sam/). To build the function prior to running, use the command
   * `sam build`
