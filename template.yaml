@@ -8,8 +8,8 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 3
-    MemorySize: 128
+    Timeout: 10
+    MemorySize: 256
 
 Resources:
   HelloWorldFunction:
@@ -26,6 +26,10 @@ Resources:
           Properties:
             Path: /hello
             Method: get
+      Environment:
+        Variables:
+          TABLE_NAME: ${TABLE_NAME}
+          BUCKET_NAME: ${BUCKET_NAME}
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
