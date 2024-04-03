@@ -65,6 +65,8 @@ def lambda_handler(event, context):
         clean_df=clean_stocks_df
     )
 
+    logger.info('Attempted the upload to S3. See final message for status')
+
     return {
         "statusCode": 200,
         "body": json.dumps({

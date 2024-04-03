@@ -121,7 +121,7 @@ def clean_dataframe(df: DataFrame) -> DataFrame:
     return df
 
 
-def upload_file(s3_client, bucket_name: str, file_name: str, clean_df: DataFrame) -> str:
+def upload_file(s3_client, bucket_name: str, file_name: str, clean_df: DataFrame):
     """
     Uploads the cleaned pandas DataFrame returned from the `clean_dataframe` function to S3.
 
@@ -156,7 +156,9 @@ def upload_file(s3_client, bucket_name: str, file_name: str, clean_df: DataFrame
                 Body=csv_buffer.getvalue()
             )
 
-            status = response.get('ResponseMetaData', {}).get('HTTPStatusCode')
+            # return response
+
+            status = response['ResponseMetadata']['HTTPStatusCode']
 
         if status == 200:
             return f"Successful S3 put_object response. Status - {status}"
