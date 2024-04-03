@@ -1,6 +1,12 @@
+import os
+import logging
 import json
+import boto3
 
-# import requests
+from utils import (get_stock_data_from_ddb)
+
+logger = logging.getLogger()
+logger.setLevel('INFO')
 
 
 def lambda_handler(event, context):
@@ -25,18 +31,24 @@ def lambda_handler(event, context):
         Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
     """
 
-    # try:
-    #     ip = requests.get("http://checkip.amazonaws.com/")
-    # except requests.RequestException as e:
-    #     # Send some context about this error to Lambda Logs
-    #     print(e)
+    # Initialize the AWS resource clients
+    db_client = boto3.client('dynamodb')
+    bucket_client = boto3.client('s3')
 
-    #     raise e
+    # Get the data from DynamoDB
+    db_data = get_stock_data_from_ddb(
+        db_client=db_client,
+        index_name='SymbolIndex',
+        table_name=os.environ['TABLE_NAME'],
+        symbols=['IBM', 'MSFT']
+    )
+
+    logger.info('Successfully obtained data from DynamoDB')
 
     return {
         "statusCode": 200,
         "body": json.dumps({
-            "message": "hello world",
+            "message": db_data,
             # "location": ip.text.replace("\n", "")
         }),
     }
