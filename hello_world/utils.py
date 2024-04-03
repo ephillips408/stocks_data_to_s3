@@ -33,6 +33,8 @@ def get_stock_data_from_ddb(db_client, table_name: str, index_name: str, symbols
 
     try:
 
+        results = []
+
         for symbol in symbols:
 
             query_params = {
@@ -46,7 +48,9 @@ def get_stock_data_from_ddb(db_client, table_name: str, index_name: str, symbols
 
             response = db_client.query(**query_params)
 
-            return response
+            results.append(response['Items'])
+
+        return results
 
     except ClientError as err:
 
