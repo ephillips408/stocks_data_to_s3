@@ -1,7 +1,7 @@
 import logging
 
 from botocore.exceptions import ClientError
-from pandas import DataFrame
+from pandas import (DataFrame, to_numeric)
 
 logger = logging.getLogger()
 logger.setLevel('INFO')
@@ -99,3 +99,22 @@ def stocks_to_dataframe(response_list: list) -> DataFrame:
     results = DataFrame(data)
 
     return results
+
+
+def clean_dataframe(df: DataFrame) -> DataFrame:
+    """
+    Cleans the data that we obtained from the `stocks_to_dataframe` function. 
+    The necessary transformations are simply data type conversions.
+
+    Parameters
+    ----------
+    `df`: `DataFrame`
+        The pandas DataFrame that is returned from the `stocks_to_dataframe` function.
+
+    Returns
+    -------
+    A cleaned DataFrame that is ready to upload to S3.
+    """
+    df[['open_price', 'close_price', 'volume']] = df[[
+        'open_price', 'close_price', 'volume']].apply(to_numeric)
+    return df

@@ -3,7 +3,8 @@ import logging
 import json
 import boto3
 
-from utils import (get_stock_data_from_ddb, stocks_to_dataframe)
+from utils import (get_stock_data_from_ddb,
+                   stocks_to_dataframe, clean_dataframe)
 
 logger = logging.getLogger()
 logger.setLevel('INFO')
@@ -51,10 +52,16 @@ def lambda_handler(event, context):
 
     logger.info('Successfully converted data to DataFrame')
 
+    clean_stocks_df = clean_dataframe(
+        df=stocks_df
+    )
+
+    logger.info('Successfully cleaned the DataFrame')
+
     return {
         "statusCode": 200,
         "body": json.dumps({
-            "message": stocks_df,
+            "message": clean_stocks_df,
             # "location": ip.text.replace("\n", "")
         }),
     }
