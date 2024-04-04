@@ -58,5 +58,6 @@
     "httpMethod": "POST",
     "apiId": "1234567890",
     "protocol": "HTTP/1.1"
-  }
+  },
+  "stocks": ["IBM", "MSFT", "NVDA"]
 }

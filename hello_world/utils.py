@@ -76,7 +76,7 @@ def stocks_to_dataframe(response_list: list) -> DataFrame:
 
     Returns
     -------
-    A pandas DataFrame that is properly cleaned for the upload to S3.
+    The data returned from DynamoDB as a pandas DataFrame.
     """
     data = []
 
@@ -121,7 +121,7 @@ def clean_dataframe(df: DataFrame) -> DataFrame:
     return df
 
 
-def upload_file(s3_client, bucket_name: str, file_name: str, clean_df: DataFrame):
+def upload_file(s3_client, bucket_name: str, file_name: str, clean_df: DataFrame) -> str:
     """
     Uploads the cleaned pandas DataFrame returned from the `clean_dataframe` function to S3.
 
@@ -155,8 +155,6 @@ def upload_file(s3_client, bucket_name: str, file_name: str, clean_df: DataFrame
                 Key=file_name,
                 Body=csv_buffer.getvalue()
             )
-
-            # return response
 
             status = response['ResponseMetadata']['HTTPStatusCode']
 
