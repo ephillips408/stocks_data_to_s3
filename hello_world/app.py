@@ -41,23 +41,26 @@ def lambda_handler(event, context):
         db_client=db_client,
         index_name='SymbolIndex',
         table_name=os.environ['TABLE_NAME'],
-        symbols=['IBM', 'MSFT']
+        symbols=event['stocks']
     )
 
     logger.info('Successfully obtained data from DynamoDB')
 
+    # Convert the returned data from DynamoDB to a pandas DataFrame
     stocks_df = stocks_to_dataframe(
         response_list=db_data
     )
 
     logger.info('Successfully converted data to DataFrame')
 
+    # Clean the data in the DataFrame
     clean_stocks_df = clean_dataframe(
         df=stocks_df
     )
 
     logger.info('Successfully cleaned the DataFrame')
 
+    # Upload the results to S3
     upload_result = upload_file(
         s3_client=bucket_client,
         bucket_name=os.environ['BUCKET_NAME'],
